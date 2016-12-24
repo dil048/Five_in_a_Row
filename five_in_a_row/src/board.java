@@ -1,4 +1,5 @@
 
+import java.io.IOException;
 import java.util.*;
 public class board
 {
@@ -9,30 +10,37 @@ public class board
     public final int player1 = 1;
     public final int player2 = 2;
     
-    
+    private ArrayList<board> savedBoard;
     private int turn;
     private int[][] grid;
     
-    public board()
+    public board() 
     {
-        this.turn = this.player1;
+        savedBoard = new ArrayList<>();
+        this.turn = 1;
         this.grid = new int [boardSize][boardSize];
+        this.saveBoard();
     }
-    public board(int turn, int [][]input)
+    public board(board other)
     {
-        this.turn = turn;
-        for(int i =0;i<input.length;i++)
-        {
-            for(int j=0;i<input[i].length;j++)
-            {
-                this.grid[i][j]=input[i][j];
-            }
-        }
+        savedBoard = other.getSavedBoard();
+        this.setTurn(other.getTurn());
+        this.setGrid(other.getGrid());
     }
 
     public int getTurn()
     {
-        if(turn%2==1)
+        return turn;
+    }
+    
+    public void setTurn(int turn)
+    {
+        this.turn = turn;
+    }
+    
+    public int whoseTurn()
+    {
+        if(this.getTurn()%2==1)
         {
             return 1;
         }else
@@ -41,9 +49,14 @@ public class board
         }
     }
     
-    public void setTurn(int turn)
+    public ArrayList<board> getSavedBoard()
     {
-        this.turn = turn;
+        return savedBoard;
+    }
+    
+    public void setSavedBoard(ArrayList<board> savedBoard)
+    {
+        this.savedBoard = savedBoard;
     }
     
     public int[][] getGrid()
@@ -53,7 +66,14 @@ public class board
     
     public void setGrid(int[][] grid)
     {
-        this.grid = grid;
+        this.grid = new int[this.boardSize][this.boardSize];
+        for(int i=0;i<grid.length;i++)
+        {
+            for(int j=0;j<grid[i].length;j++)
+            {
+                this.grid[i][j]=grid[i][j];
+            }
+        }
     }
     
     public boolean emptyPos(int row, int col)
@@ -71,7 +91,8 @@ public class board
         {
             if(this.emptyPos(row, col))
             {
-                this.getGrid()[row][col]=player1;
+                this.getGrid()[row][col] = player1;
+                this.saveBoard();
                 if(!(this.checkWin()))
                 {
                     this.setTurn(this.getTurn()+1);
@@ -86,6 +107,7 @@ public class board
             if(this.emptyPos(row, col))
             {
                 this.getGrid()[row][col]=player2;
+                this.saveBoard();
                 if(!(this.checkWin()))
                 {
                     this.setTurn(this.getTurn()+1);
@@ -161,6 +183,37 @@ public class board
         
     }
     
+    public void saveBoard()
+    {
+        this.savedBoard.add(new board(this));
+    }
+    
+    public board undo()
+    {
+        try
+        {
+            board prevboard = new board(this.getSavedBoard().get(this.getTurn()-3));
+            prevboard.setTurn(this.getTurn()-2);
+            return prevboard;
+        }catch(Exception e)
+        {
+            return null;
+        }
+    }
+    
+    public board redo()
+    {
+        try
+        {
+            board prevboard = new board(this.getSavedBoard().get(this.getTurn()+1));
+            prevboard.setTurn(this.getTurn()+1);
+            return prevboard;
+        }catch(Exception e)
+        {
+            return null;
+        }
+    }
+    
     public void printboard()
     {
         System.out.println(this.toString());
@@ -168,15 +221,14 @@ public class board
     
     public void occupied()
     {
-        System.out.println("The is already a piece here");
+        System.out.println("There is already a piece here");
     }
-    
     
     @Override
     public String toString()
     {
         StringBuilder outputString = new StringBuilder();
-        outputString.append("Player"+this.getTurn()+ "'s turn \n");
+        outputString.append("Player"+this.whoseTurn()+ " 's turn \n");
         for(int i = 0;i<boardSize;i++)
         {
             for(int j=0;j<boardSize;j++)
