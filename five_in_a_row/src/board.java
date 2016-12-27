@@ -1,9 +1,10 @@
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 public class board
 {
-    public final int boardSize = 15;
+    public final int boardSize;
     public final String p1 = "Player 1";
     public final String p2 = "Player 2";
     public final int empty = 0;
@@ -16,16 +17,44 @@ public class board
     
     public board() 
     {
-        savedBoard = new ArrayList<>();
-        this.turn = 1;
+        this.boardSize = 14;
+        this.savedBoard = new ArrayList<>();
+        this.setTurn(1);
         this.grid = new int [boardSize][boardSize];
         this.saveBoard();
     }
+    
     public board(board other)
     {
-        savedBoard = other.getSavedBoard();
+        this.boardSize = 14;
+        this.savedBoard = other.getSavedBoard();
         this.setTurn(other.getTurn());
         this.setGrid(other.getGrid());
+    }
+    
+    public board(String inputBoard) throws IOException 
+    {
+        this.boardSize = 14;
+        this.savedBoard = new ArrayList<>();
+        
+        Scanner sc  = new Scanner(new File(inputBoard));
+        this.grid = new int[boardSize][boardSize];
+        
+        String s = sc.nextLine();
+        if(s.equals(p1))
+        {
+            this.setTurn(1);
+        }else if (s.equals(p2))
+        {
+            this.setTurn(2);
+        }
+        for(int i = 0;i<boardSize;i++)
+        {
+            for(int j = 0;j<boardSize;j++)
+            {
+                grid[boardSize][boardSize]=sc.nextInt();
+            }
+        }
     }
 
     public int getTurn()
@@ -78,6 +107,10 @@ public class board
     
     public boolean emptyPos(int row, int col)
     {
+        if(row == -1 || col == -1)
+        {
+            return false;
+        }
         if(this.getGrid()[row][col]==empty)
         {
             return true;
@@ -97,10 +130,6 @@ public class board
                 {
                     this.setTurn(this.getTurn()+1);
                 }
-            }else
-            {
-                this.occupied();
-                this.printboard();
             }
         }else
         {
@@ -112,10 +141,6 @@ public class board
                 {
                     this.setTurn(this.getTurn()+1);
                 }
-            }else
-            {
-                this.occupied();
-                this.printboard();
             }
         }
     }
@@ -179,6 +204,20 @@ public class board
                 }
             }
         }
+        for(int i = boardSize-1;i>=4;i--)
+        {
+            for(int j = boardSize-1;j>=4;j--)
+            {
+                if(this.getGrid()[i][j]!=0 &&
+                    this.getGrid()[i][j]==this.getGrid()[i+1][j-1] &&
+                    this.getGrid()[i+1][j-1]==this.getGrid()[i+2][j-2] &&
+                    this.getGrid()[i+2][j-2]==this.getGrid()[i+3][j-3] &&
+                    this.getGrid()[i+3][j-3]==this.getGrid()[i+4][j-4])
+                {
+                    return true;
+                }
+            }
+        }
         return false;
         
     }
@@ -214,15 +253,7 @@ public class board
         }
     }
     
-    public void printboard()
-    {
-        System.out.println(this.toString());
-    }
     
-    public void occupied()
-    {
-        System.out.println("There is already a piece here");
-    }
     
     @Override
     public String toString()
