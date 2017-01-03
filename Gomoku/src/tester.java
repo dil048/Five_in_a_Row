@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+/*import java.util.ArrayList;
 import java.util.Scanner;
 
 public class tester
@@ -45,15 +45,13 @@ public class tester
         }while(!a.checkWin()&&!a.full());
         if(a.checkWin())
         {
-            System.out.println(a);
             System.out.println("Player "+ a.getTurn()+ " won!");
         }
         if(a.full())
         {
-            System.out.println(a);
             System.out.println("Game over. It is a tie.");
         }
     }
-    }
+    }*/
 
 

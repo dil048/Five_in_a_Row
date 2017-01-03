@@ -14,9 +14,10 @@ public class board
     private ArrayList<board> savedBoard;
     private int turn;
     private int[][] grid;
-    
+    private int turnIncludeActions;
     public board() 
     {
+        this.turnIncludeActions = 1;
         this.boardSize = 15;
         this.savedBoard = new ArrayList<>();
         this.setTurn(1);
@@ -24,10 +25,21 @@ public class board
         this.saveBoard();
     }
     
+    public int getTurnIncludeActions()
+    {
+        return turnIncludeActions;
+    }
+
+    public void setTurnIncludeActions(int turnIncludeActions)
+    {
+        this.turnIncludeActions = turnIncludeActions;
+    }
+
     public board(board other)
     {
         this.boardSize = 15;
         this.savedBoard = other.getSavedBoard();
+        this.turnIncludeActions = other.getTurnIncludeActions();
         this.setTurn(other.getTurn());
         this.setGrid(other.getGrid());
     }
@@ -36,6 +48,7 @@ public class board
     {
         this.boardSize = 15;
         this.savedBoard = new ArrayList<>();
+        this.turnIncludeActions = 1;
         
         Scanner sc  = new Scanner(new File(inputBoard));
         this.grid = new int[this.boardSize][this.boardSize];
@@ -122,6 +135,7 @@ public class board
     {
         if(this.getTurn()%2==1)
         {
+            
             if(this.emptyPos(row, col))
             {
                 this.getGrid()[row][col] = player1;
@@ -129,10 +143,12 @@ public class board
                 if(!(this.checkWin()))
                 {
                     this.setTurn(this.getTurn()+1);
+                    this.setTurnIncludeActions(this.getTurnIncludeActions()+1);
                 }
             }
         }else
         {
+            
             if(this.emptyPos(row, col))
             {
                 this.getGrid()[row][col]=player2;
@@ -140,6 +156,7 @@ public class board
                 if(!(this.checkWin()))
                 {
                     this.setTurn(this.getTurn()+1);
+                    this.setTurnIncludeActions(this.getTurnIncludeActions()+1);
                 }
             }
         }
@@ -221,6 +238,17 @@ public class board
         return false;
         
     }
+    public void resetBoard()
+    {
+        this.savedBoard.clear();
+        for(int i=0;i<this.boardSize;i++)
+        {
+            for(int j=0;j<this.boardSize;j++)
+            {
+                grid[i][j]=0;
+            }
+        }
+    }
     
     public void saveBoard()
     {
@@ -245,7 +273,7 @@ public class board
         try
         {
             board prevboard = new board(this.getSavedBoard().get(this.getTurn()+1));
-            prevboard.setTurn(this.getTurn()+1);
+            prevboard.setTurn(this.getTurn()+2);
             return prevboard;
         }catch(Exception e)
         {
